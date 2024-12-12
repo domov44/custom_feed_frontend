@@ -29,14 +29,14 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    const login = async (email, password) => {
+    const login = async (username, password) => {
         try {
-            const response = await fetch('https://nest-api-sand.vercel.app/login', {
+            const response = await fetch('http://localhost:3000/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ username, password }),
             });
 
             if (!response.ok) {
@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             const data = await response.json();
+            console.log(data)
             setCurrentUser({ token: data.token });
         } catch (error) {
             console.error("Erreur lors de la connexion utilisateur", error);
