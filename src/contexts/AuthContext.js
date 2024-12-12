@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await fetch('http://localhost:3000/auth/login', {
+            const response = await fetch('https://nest-api-sand.vercel.app/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,8 +45,16 @@ export const AuthProvider = ({ children }) => {
             }
 
             const data = await response.json();
+
+            Cookies.set('token', data.access_token, {
+                expires: 7,
+                secure: true,
+                path: '/',
+                sameSite: 'Strict',
+            });
+
             console.log(data)
-            setCurrentUser({ token: data.token });
+            setCurrentUser({ token: data.access_token });
         } catch (error) {
             console.error("Erreur lors de la connexion utilisateur", error);
             throw error;
