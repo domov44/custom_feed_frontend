@@ -86,8 +86,8 @@ function Login() {
               variant="outlined"
               id="username"
               name="username"
-              label="Nom d'utilisateur ou email"
-              placeholder="Nom d'utilisateur ou email"
+              label="Username"
+              placeholder="Nom d'utilisateur ou username"
               value={values.username}
               onChange={handleInput}
               error={Boolean(errors.username)}
