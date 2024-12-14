@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 function ProtectedRoutes({ children }) {
@@ -9,11 +9,13 @@ function ProtectedRoutes({ children }) {
         return <div>Loading...</div>;
     }
 
+    console.log(currentUser)
+
     if (!currentUser) {
         return <Navigate to="/se-connecter" replace />;
     }
 
-    return children;
+    return <Outlet/>;
 }
 
 export default ProtectedRoutes;
