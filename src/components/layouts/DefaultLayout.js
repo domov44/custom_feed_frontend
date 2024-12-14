@@ -6,7 +6,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-// import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -16,13 +15,15 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import Avatar from '@mui/material/Avatar';
-// import { UserContext } from '../../utils/UserContext';
 import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import Logout from '../../utils/Logout';
+import { Link, Outlet } from 'react-router-dom';
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
+import StyleIcon from '@mui/icons-material/Style';
+import FolderCopyIcon from '@mui/icons-material/FolderCopy';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const drawerWidth = 300;
 
@@ -110,7 +111,7 @@ export default function DefaultLayout({ children }) {
             </IconButton>
             <Box sx={{ flexGrow: 1 }} />
             <Tooltip title="Votre profil">
-              <IconButton sx={{ p: 0 }}>
+              <IconButton sx={{ p: 0 }} component={Link} to="/profil">
                 <Avatar />
               </IconButton>
             </Tooltip>
@@ -137,25 +138,46 @@ export default function DefaultLayout({ children }) {
         </DrawerHeader>
         <Divider />
         <List>
-          {['Accueil', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton href="/">
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/">
+              <ListItemIcon>
+                <DynamicFeedIcon />
+              </ListItemIcon>
+              <ListItemText>Feed</ListItemText>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/categories">
+              <ListItemIcon>
+                <FolderCopyIcon />
+              </ListItemIcon>
+              <ListItemText>Categories</ListItemText>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/tags">
+              <ListItemIcon>
+                <StyleIcon />
+              </ListItemIcon>
+              <ListItemText>Tags</ListItemText>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/settings">
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText>Settings</ListItemText>
+            </ListItemButton>
+          </ListItem>
         </List>
-
         <Divider />
         <List>
           <Logout />
         </List>
       </Drawer>
       <Main open={open}>
-        {children}
+        <Outlet />
       </Main>
     </Box>
   );

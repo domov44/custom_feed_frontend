@@ -6,6 +6,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import darkTheme from './utils/themes/theme';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './contexts/AuthContext';
 
 const Root = () => {
@@ -14,6 +15,7 @@ const Root = () => {
       <CssBaseline />
       <BrowserRouter>
         <AuthProvider>
+          <ToastContainer />
           <App />
         </AuthProvider>
       </BrowserRouter>
