@@ -4,17 +4,28 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
+import { useTheme } from '@mui/material/styles';
 
 const Logout = () => {
+    const theme = useTheme();
 
     return (
-        <ListItem disablePadding sx={{ color: "var(--error-color)" }}>
-        <ListItemButton>
-            <ListItemIcon sx={{ color: "var(--error-color)" }}>
-                <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary="Se déconnecter" />
-        </ListItemButton>
+        <ListItem disablePadding sx={{ color: theme.palette.errorColor.main }}>
+            <ListItemButton
+                sx={{
+                    '&:hover': {
+                        backgroundColor: theme.palette.errorColor.light,
+                    },
+                }}
+            >
+                <ListItemIcon sx={{ color: theme.palette.errorColor.main }}>
+                    <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText
+                    primary="Se déconnecter"
+                    sx={{ color: theme.palette.errorColor.main }}
+                />
+            </ListItemButton>
         </ListItem>
     );
 };

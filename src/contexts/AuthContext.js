@@ -1,79 +1,119 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { notifyError, notifySuccess } from "../components/ui/Toastify";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
+    const navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const response = await axios.get('/api/checkAuth');
-                if (response.data.loggedIn) {
-                    setCurrentUser({ uid: response.data.uid });
-                } else {
-                    setCurrentUser(null);
-                }
-            } catch (error) {
-                console.error("Erreur lors de la vérification de l'authentification", error);
+    const checkAuth = async () => {
+        try {
+            const token = Cookies.get("token");
+            if (!token) {
                 setCurrentUser(null);
-            } finally {
                 setLoading(false);
+                return;
             }
-        };
 
+            const response = await fetch("https://nest-api-sand.vercel.app/users/me", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch user. Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.username) {
+                setCurrentUser({ username: data.username, github: data.githubname });
+            } else {
+                setCurrentUser(null);
+            }
+        } catch (error) {
+            console.error("Error checking authentication", error);
+            setCurrentUser(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         checkAuth();
     }, []);
 
     const login = async (username, password) => {
         try {
-            const response = await fetch('https://nest-api-sand.vercel.app/auth/login', {
-                method: 'POST',
+            const response = await fetch("https://nest-api-sand.vercel.app/auth/login", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ username, password }),
             });
 
             if (!response.ok) {
-                throw new Error('Erreur lors de la requête. Statut : ' + response.status);
+                throw new Error(`Login failed. Status: ${response.status}`);
             }
 
             const data = await response.json();
 
-            Cookies.set('token', data.access_token, {
+            Cookies.set("token", data.access_token, {
                 expires: 7,
                 secure: true,
-                path: '/',
-                sameSite: 'Strict',
+                path: "/",
+                sameSite: "Strict",
             });
 
-            console.log(data)
-            setCurrentUser({ token: data.access_token });
+            await checkAuth();
+            navigate("/");
+            notifySuccess("You are logged in");
         } catch (error) {
-            console.error("Erreur lors de la connexion utilisateur", error);
+            notifyError("Login failed. Please try again.");
+            console.error("Error logging in", error);
             throw error;
         }
     };
 
     const logout = async () => {
         try {
-            await axios.post('/api/logout');
-            setCurrentUser(null);
+            const token = Cookies.get("token");
+            if (token) {
+                await axios.post(
+                    "https://nest-api-sand.vercel.app/api/logout",
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                Cookies.remove("token");
+                setCurrentUser(null);
+                navigate("/login");
+                notifySuccess("You have been logged out.");
+            }
         } catch (error) {
-            console.error("Erreur lors de la déconnexion", error);
+            notifyError("Error during logout. Please try again.");
+            console.error("Error during logout", error);
         }
     };
 
     return (
         <AuthContext.Provider value={{ currentUser, login, logout, loading }}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
-
