@@ -71,13 +71,18 @@ const Feed = () => {
     return (
       <Container component="main" maxWidth="lg">
         <Grid container spacing={3}>
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: 9 }).map((_, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <StyledCard>
                 <Skeleton variant="rectangular" width="100%" height={180} />
                 <StyledCardContent>
-                  <Skeleton width="60%" height={20} />
-                  <Skeleton width="40%" height={15} />
+                <Box display="flex" alignItems="center" marginBottom={1} width="100%" gap={1}>
+                    <Skeleton variant="circular" width={40} height={33}/>
+                    <Box display="flex" flexDirection={"column"} width="100%">
+                      <Skeleton width="60%" height={20} />
+                      <Skeleton width="40%" height={15} />
+                    </Box>
+                  </Box>
                 </StyledCardContent>
               </StyledCard>
             </Grid>
@@ -105,18 +110,19 @@ const Feed = () => {
                 />
               </a>
               <StyledCardContent>
-                <Box display="flex" alignItems="center" marginBottom={1}>
+                <Box display="flex" alignItems="center" marginBottom={1} width={"100%"} gap={1}>
                   <Link
                     href={video.channel.url}
                     target="_blank"
                     rel="noreferrer"
                     underline="none"
+                    gap={1}
                     style={{ display: 'flex', alignItems: 'center' }}
                   >
                     <Avatar
                       src={video.channel.avatar}
                       alt={video.channel.title}
-                      sx={{ width: 40, height: 40, marginRight: 1 }}
+                      sx={{ width: 40, height: 40 }}
                     />
                     <Box display="flex" flexDirection={"column"}>
                       <Typography

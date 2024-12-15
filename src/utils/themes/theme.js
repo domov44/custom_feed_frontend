@@ -14,6 +14,7 @@ const darkTheme = createTheme({
     secondary: {
       main: '#f48fb1',
     },
+    paper: '#242424',
   },
 });
 

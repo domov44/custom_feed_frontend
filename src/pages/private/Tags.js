@@ -1,36 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Typography, 
-  Container, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Checkbox, 
-  Button, 
-  Box,
-  Chip,
-  TablePagination,
-  IconButton,
-  Tooltip
+import {
+    Typography,
+    Container,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Checkbox,
+    Button,
+    Box,
+    Chip,
+    TablePagination,
+    IconButton,
+    Tooltip
 } from '@mui/material';
-import { 
-  Delete as DeleteIcon, 
-  Add as AddIcon, 
-  Edit as EditIcon 
+import {
+    Delete as DeleteIcon,
+    Add as AddIcon,
+    Edit as EditIcon
 } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
 import Cookies from 'js-cookie';
+import AddTagsPopup from '../../components/ui/popup/allPopups/AddTagsPopup';
+import { usePopup } from '../../contexts/PopupContext';
+import { confirm } from '../../components/ui/popup/ConfirmGlobal';
+import { notifyError, notifySuccess } from '../../components/ui/Toastify';
 
 export default function ImprovedTagsManagement() {
-    const { currentUser } = useAuth();
-    const [tags, setTags] = useState([]); 
-    const [selectedTags, setSelectedTags] = useState([]); 
+    const { popups, openPopup, closePopup } = usePopup();
+    const [tags, setTags] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-    
+
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -38,9 +41,10 @@ export default function ImprovedTagsManagement() {
         return Cookies.get('token');
     };
 
+    const token = getTokenFromCookie();
+
     useEffect(() => {
         const fetchData = async () => {
-            const token = getTokenFromCookie();
 
             if (token) {
                 try {
@@ -79,20 +83,86 @@ export default function ImprovedTagsManagement() {
 
     const handleSelectAll = () => {
         if (selectAll) {
-            setSelectedTags([]); 
+            setSelectedTags([]);
         } else {
-            setSelectedTags(tags.map((tag) => tag.id)); 
+            setSelectedTags(tags.map((tag) => tag.id));
         }
         setSelectAll(!selectAll);
     };
 
-    const handleAddTags = () => {
-        console.log('Ajouter des tags', selectedTags);
-    };
+    async function handleDeleteTags() {
+        const userConfirmed = await confirm({
+            title: "Do you really want to delete all selected tags?",
+            content: "All selected tags will be removed forever.",
+            variant: "danger"
+        });
 
-    const handleDeleteTags = () => {
-        console.log('Supprimer les tags', selectedTags);
-    };
+        if (userConfirmed) {
+            try {
+                let deletionSuccessful = true;
+
+                for (let tagId of selectedTags) {
+                    const response = await fetch(`https://nest-api-sand.vercel.app/tags/${tagId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        setTags((prevTags) => prevTags.filter((tag) => tag.id !== tagId));
+                    } else {
+                        deletionSuccessful = false;
+                        console.error(`Failed to delete tag ${tagId}`);
+                    }
+                }
+
+                if (deletionSuccessful) {
+                    notifySuccess('All selected tags were deleted');
+                } else {
+                    notifyError('Error deleting some tags');
+                }
+
+            } catch (error) {
+                notifyError('Error deleting tags');
+                console.error('Error deleting tags:', error);
+            }
+        }
+    }
+
+
+    async function handleDeleteOneTag(id) {
+        const userConfirmed = await confirm({
+            title: "Do you really want to delete this tag?",
+            content: "The tag will be removed forever.",
+            variant: "danger"
+        });
+
+        if (userConfirmed) {
+            try {
+                const response = await fetch(`https://nest-api-sand.vercel.app/tags/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    notifySuccess('The tag was deleted')
+                    setTags((prevTags) => prevTags.filter((tag) => tag.id !== id));
+                } else {
+                    notifyError('Error deleting tag')
+                    console.error('Failed to delete tag');
+                }
+            } catch (error) {
+                notifyError('Error deleting tag')
+                console.error('Error deleting tag:', error);
+            }
+        }
+    }
+
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -104,54 +174,45 @@ export default function ImprovedTagsManagement() {
     };
 
     const paginatedTags = tags.slice(
-        page * rowsPerPage, 
+        page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
 
     return (
         <Container component="main" maxWidth="lg">
-            <Box 
-                sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    mb: 3,
-                    mt: 2
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1,
+                    mt: 1
                 }}
             >
                 <Typography variant="h4" gutterBottom>
                     Tag Management
                 </Typography>
-                <Chip 
-                    label={currentUser.username} 
-                    color="primary" 
-                    variant="outlined" 
-                />
-            </Box>
-
-            <Paper elevation={3} sx={{ width: '100%', mb: 2 }}>
-                <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    p: 2 
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'end',
+                    alignItems: 'center',
                 }}>
                     <Box>
                         <Tooltip title="Add New Tag">
-                            <Button 
-                                variant="contained" 
-                                color="primary" 
+                            <Button
+                                variant="contained"
+                                color="primary"
                                 startIcon={<AddIcon />}
-                                onClick={handleAddTags}
+                                onClick={() => openPopup("add_tag")}
                                 sx={{ mr: 2 }}
                             >
                                 Add Tag
                             </Button>
                         </Tooltip>
                         <Tooltip title="Delete Selected Tags">
-                            <Button 
-                                variant="contained" 
-                                color="error" 
+                            <Button
+                                variant="contained"
+                                color="error"
                                 startIcon={<DeleteIcon />}
                                 onClick={handleDeleteTags}
                                 disabled={selectedTags.length === 0}
@@ -161,7 +222,8 @@ export default function ImprovedTagsManagement() {
                         </Tooltip>
                     </Box>
                 </Box>
-
+            </Box>
+            <Paper elevation={3} sx={{ width: '100%', mb: 2 }}>
                 <TableContainer>
                     <Table sx={{ minWidth: 650 }}>
                         <TableHead>
@@ -169,11 +231,11 @@ export default function ImprovedTagsManagement() {
                                 <TableCell padding="checkbox">
                                     <Checkbox
                                         indeterminate={
-                                            selectedTags.length > 0 && 
+                                            selectedTags.length > 0 &&
                                             selectedTags.length < tags.length
                                         }
                                         checked={
-                                            tags.length > 0 && 
+                                            tags.length > 0 &&
                                             selectedTags.length === tags.length
                                         }
                                         onChange={handleSelectAll}
@@ -188,13 +250,13 @@ export default function ImprovedTagsManagement() {
                         </TableHead>
                         <TableBody>
                             {paginatedTags.map((tag) => (
-                                <TableRow 
+                                <TableRow
                                     key={tag.id}
                                     hover
-                                    sx={{ 
+                                    sx={{
                                         '&:last-child td, &:last-child th': { border: 0 },
-                                        backgroundColor: selectedTags.includes(tag.id) 
-                                            ? 'action.selected' 
+                                        backgroundColor: selectedTags.includes(tag.id)
+                                            ? 'action.selected'
                                             : 'transparent'
                                     }}
                                 >
@@ -215,7 +277,7 @@ export default function ImprovedTagsManagement() {
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Delete Tag">
-                                            <IconButton color="error">
+                                            <IconButton color="error" onClick={() => handleDeleteOneTag(tag.id)}>
                                                 <DeleteIcon />
                                             </IconButton>
                                         </Tooltip>
@@ -236,6 +298,11 @@ export default function ImprovedTagsManagement() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
+            <AddTagsPopup
+                open={popups["add_tag"]}
+                onClose={() => closePopup("add_tag")}
+                token={token}
+            />
         </Container>
     );
 }
