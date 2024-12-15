@@ -176,7 +176,9 @@ export default function DefaultLayout({ children }) {
           <Logout />
         </List>
       </Drawer>
-      <Main open={open}>
+      <Main open={open} sx={{
+        mt: 10
+      }}>
         <Outlet />
       </Main>
     </Box>

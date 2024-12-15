@@ -1,4 +1,3 @@
-// index.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -8,6 +7,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './contexts/AuthContext';
+import { PopupProvider } from './contexts/PopupContext';
+import { default as ConfirmGlobal } from './components/ui/popup/ConfirmGlobal';
 
 const Root = () => {
   return (
@@ -16,7 +17,10 @@ const Root = () => {
       <BrowserRouter>
         <AuthProvider>
           <ToastContainer />
-          <App />
+          <PopupProvider>
+            <ConfirmGlobal />
+            <App />
+          </PopupProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
