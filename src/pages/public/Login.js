@@ -25,6 +25,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const form = useRef(null);
 
@@ -65,8 +66,11 @@ function Login() {
     }
 
     try {
+      setLoading(true);
       await login(values.username, values.password);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Erreur lors de la connexion", error);
       setGlobalError('Nom d’utilisateur ou mot de passe incorrect');
     }
@@ -123,8 +127,8 @@ function Login() {
               }
               label="Se souvenir de moi"
             />
-            <Button type="submit" fullWidth variant="contained" color="primary" size="large" sx={{ mt: 3, mb: 1 }}>
-              Se connecter
+            <Button type="submit" fullWidth variant="contained" color="primary" size="large" sx={{ mt: 3, mb: 1 }} disabled={loading}>
+              {loading ? 'Wait..' : 'Sign in'}
             </Button>
           </form>
         </Paper>
