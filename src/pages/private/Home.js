@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Typography, Card, CardContent, CardMedia, Skeleton } from '@mui/material';
+import { Grid, Typography, Card, CardContent, CardMedia, Avatar, Skeleton, Box, Link } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Cookies from 'js-cookie';
@@ -27,8 +27,6 @@ const StyledCardMedia = styled(CardMedia)({
 
 const StyledCardContent = styled(CardContent)({
   padding: '16px',
-  display: 'flex',
-  flexDirection: 'column',
 });
 
 const Feed = () => {
@@ -48,7 +46,7 @@ const Feed = () => {
         const response = await fetch('https://nest-api-sand.vercel.app/feed', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
@@ -60,7 +58,7 @@ const Feed = () => {
         const data = await response.json();
         setVideos(data.items);
       } catch (error) {
-        console.error("Erreur lors de la récupération des vidéos: ", error);
+        console.error('Erreur lors de la récupération des vidéos: ', error);
       } finally {
         setLoading(false);
       }
@@ -93,23 +91,54 @@ const Feed = () => {
     <Container component="main" maxWidth="lg">
       <Grid container spacing={3}>
         {videos.map((video) => (
-          <Grid item xs={12} sm={6} md={4} key={video.id.videoId}>
-            <a href={video.url} target="_blank" style={{ textDecoration: 'none' }} rel="noreferrer">
-              <StyledCard>
+          <Grid item xs={12} sm={6} md={4} key={video.id.channelId}>
+            <StyledCard>
+              <a
+                href={video.url}
+                target="_blank"
+                style={{ textDecoration: 'none' }}
+                rel="noreferrer"
+              >
                 <StyledCardMedia
                   image={video.thumbnail}
                   title={video.title}
                 />
-                <StyledCardContent>
-                  <Typography variant="h6" component="div" noWrap>
-                    {video.title}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary" display="block" noWrap>
-                    {video.channelTitle}
-                  </Typography>
-                </StyledCardContent>
-              </StyledCard>
-            </a>
+              </a>
+              <StyledCardContent>
+                <Box display="flex" alignItems="center" marginBottom={1}>
+                  <Link
+                    href={video.channel.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    underline="none"
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    <Avatar
+                      src={video.channel.avatar}
+                      alt={video.channel.title}
+                      sx={{ width: 40, height: 40, marginRight: 1 }}
+                    />
+                    <Box display="flex" flexDirection={"column"}>
+                      <Typography
+                        variant="h6"
+                        component="a"
+                        href={video.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        color="textPrimary"
+                        noWrap
+                        sx={{ textDecoration: 'none' }}
+                      >
+                        {video.title}
+                      </Typography>
+                      <Typography variant="subtitle2" color="textPrimary" noWrap>
+                        {video.channel.title}
+                      </Typography>
+                    </Box>
+                  </Link>
+                </Box>
+              </StyledCardContent>
+            </StyledCard>
           </Grid>
         ))}
       </Grid>
