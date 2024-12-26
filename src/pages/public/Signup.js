@@ -15,11 +15,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Link as RouterLink } from 'react-router-dom';
 
-function Login() {
+function Signup() {
 
   const [values, setValues] = useState({
     username: '',
     password: '',
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +40,7 @@ function Login() {
     setShowPassword(!showPassword);
   };
 
-  const { login } = useAuth();
+  const { signup } = useAuth();
 
   const validateForm = (formValues) => {
     const errors = {};
@@ -48,6 +49,12 @@ function Login() {
     }
     if (!formValues.password) {
       errors.password = 'Ce champ est requis';
+    }
+    if (!formValues.confirmPassword) {
+      errors.confirmPassword = 'Ce champ est requis';
+    }
+    if (formValues.password !== formValues.confirmPassword) {
+      errors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
     return errors;
   };
@@ -62,12 +69,12 @@ function Login() {
 
     try {
       setLoading(true);
-      await login(values.username, values.password);
+      await signup(values.username, values.password);
       setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error("Erreur lors de la connexion", error);
-      setGlobalError('Nom d’utilisateur ou mot de passe incorrect');
+      setGlobalError('Une erreur est survenue. Veuillez réessayer.');
     }
   };
 
@@ -76,7 +83,7 @@ function Login() {
       <Grid container justifyContent="center" alignItems="center" style={{ height: 'calc(100vh - 69px)' }} sx={{ width: '500px' }}>
         <Paper elevation={3} sx={{ padding: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <Typography component="h1" variant="h5">
-            Connexion
+            Signup
           </Typography>
           <form ref={form} onSubmit={handleSubmit}>
             <TextField
@@ -115,13 +122,27 @@ function Login() {
                 ),
               }}
             />
+            <TextField
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Confirm password"
+              value={values.confirmPassword}
+              onChange={handleInput}
+              error={Boolean(errors.confirmPassword)}
+              helperText={errors.confirmPassword}
+            />
             {globalError && <Typography color="error">{globalError}</Typography>}
             <Button type="submit" fullWidth variant="contained" color="primary" size="large" sx={{ mt: 3, mb: 1 }} disabled={loading}>
-              {loading ? 'Wait..' : 'Sign in'}
+              {loading ? 'Wait..' : 'Sign up'}
             </Button>
             <Grid container justifyContent="flex-end">
-              <Link component={RouterLink} to="/signup" variant="body2">
-                Don't have an account? Signup free.
+              <Link component={RouterLink} to="/signin" variant="body2">
+                Already have an account? Signin.
               </Link>
             </Grid>
           </form>
@@ -131,4 +152,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;
