@@ -12,7 +12,7 @@ function ProtectedRoutes({ children }) {
     console.log(currentUser)
 
     if (!currentUser) {
-        return <Navigate to="/se-connecter" replace />;
+        return <Navigate to="/signin" replace />;
     }
 
     return <Outlet/>;

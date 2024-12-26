@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
 import { notifyError, notifySuccess } from "../components/ui/Toastify";
 import { useNavigate } from "react-router-dom";
@@ -86,23 +85,36 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const signup = async (username, password) => {
+        try {
+            const response = await fetch("https://nest-api-sand.vercel.app/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Register failed. Status: ${response.status}`);
+            }
+
+            navigate("/signin");
+            notifySuccess("Welcome, you can signin");
+        } catch (error) {
+            notifyError("Register failed. Please try again.");
+            console.error("Error register in", error);
+            throw error;
+        }
+    };
+
     const logout = async () => {
         try {
             const token = Cookies.get("token");
             if (token) {
-                await axios.post(
-                    "https://nest-api-sand.vercel.app/api/logout",
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
                 Cookies.remove("token");
                 setCurrentUser(null);
-                navigate("/login");
+                navigate("/signin");
                 notifySuccess("You have been logged out.");
             }
         } catch (error) {
@@ -112,7 +124,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ currentUser, login, logout, loading }}>
+        <AuthContext.Provider value={{ currentUser, login, logout, loading, signup }}>
             {!loading && children}
         </AuthContext.Provider>
     );

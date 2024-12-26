@@ -6,12 +6,14 @@ import Login from './pages/public/Login';
 import Profil from './pages/private/Profil';
 import DefaultLayout from './components/layouts/DefaultLayout';
 import Tags from './pages/private/Tags';
+import Signup from './pages/public/Signup';
 
 function App() {
   return (
     <Routes>
       {/*Début des routes publiques à partir d'ici */}
-      <Route path="/se-connecter" element={<Login />} /> {/* Page login */}
+      <Route path="/signin" element={<Login />} /> {/* Page login */}
+      <Route path="/signup" element={<Signup />} /> {/* Page login */}
       {/* Fin des routes publiques */}
 
       {/*Début des routes protégées à partir d'ici */}
