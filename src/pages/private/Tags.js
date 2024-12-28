@@ -20,16 +20,19 @@ import {
 import {
     Delete as DeleteIcon,
     Add as AddIcon,
-    Edit as EditIcon
+    Edit as EditIcon,
+    Style as StyleIcon
 } from '@mui/icons-material';
 import Cookies from 'js-cookie';
 import AddTagsPopup from '../../components/ui/popup/allPopups/AddTagsPopup';
 import { usePopup } from '../../contexts/PopupContext';
 import { confirm } from '../../components/ui/popup/ConfirmGlobal';
 import { notifyError, notifySuccess } from '../../components/ui/Toastify';
+import CategoriesPopup from '../../components/ui/popup/allPopups/CategoriesPopup';
 
 export default function ImprovedTagsManagement() {
     const { popups, openPopup, closePopup } = usePopup();
+    const [tags, setTags] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedTags, setSelectedTags] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -94,6 +97,8 @@ export default function ImprovedTagsManagement() {
                         ...categorizedTags,
                         { id: 'uncategorized', label: 'Uncategorized', tags: uncategorizedTags }
                     ]);
+
+                    setTags(tags)
 
                 } catch (error) {
                     console.error('Error fetching tags or categories:', error);
@@ -217,6 +222,17 @@ export default function ImprovedTagsManagement() {
                     justifyContent: 'end',
                     alignItems: 'center',
                 }}>
+                    <Tooltip title="View categories">
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<StyleIcon />}
+                            onClick={() => openPopup("categories")}
+                            sx={{ mr: 2 }}
+                        >
+                            Categories
+                        </Button>
+                    </Tooltip>
                     <Tooltip title="Add new tags">
                         <Button
                             variant="contained"
@@ -327,6 +343,13 @@ export default function ImprovedTagsManagement() {
                 open={popups["add_tag"]}
                 onClose={() => closePopup("add_tag")}
                 token={token}
+            />
+            <CategoriesPopup
+                open={popups["categories"]}
+                onClose={() => closePopup("categories")}
+                token={token}
+                categories={categories}
+                tags={tags}
             />
         </Container>
     );

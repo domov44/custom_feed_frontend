@@ -22,7 +22,6 @@ import Logout from '../../utils/Logout';
 import { Link, Outlet } from 'react-router-dom';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import StyleIcon from '@mui/icons-material/Style';
-import FolderCopyIcon from '@mui/icons-material/FolderCopy';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const drawerWidth = 300;
@@ -144,14 +143,6 @@ export default function DefaultLayout({ children }) {
                 <DynamicFeedIcon />
               </ListItemIcon>
               <ListItemText>Feed</ListItemText>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to="/categories">
-              <ListItemIcon>
-                <FolderCopyIcon />
-              </ListItemIcon>
-              <ListItemText>Categories</ListItemText>
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
