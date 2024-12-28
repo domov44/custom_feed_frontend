@@ -32,7 +32,7 @@ const Logout = () => {
                     <LogoutIcon />
                 </ListItemIcon>
                 <ListItemText
-                    primary="Se déconnecter"
+                    primary="Logout"
                     sx={{ color: theme.palette.errorColor.main }}
                 />
             </ListItemButton>
