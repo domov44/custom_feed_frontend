@@ -20,7 +20,6 @@ import {
 import {
     Delete as DeleteIcon,
     Add as AddIcon,
-    Edit as EditIcon,
     Style as StyleIcon
 } from '@mui/icons-material';
 import Cookies from 'js-cookie';
@@ -155,6 +154,7 @@ export default function ImprovedTagsManagement() {
                 let deletionSuccessful = true;
 
                 for (let tagId of selectedTags) {
+                    console.log(tagId)
                     const response = await fetch(`https://nest-api-sand.vercel.app/tags/${tagId}`, {
                         method: 'DELETE',
                         headers: {
@@ -279,7 +279,6 @@ export default function ImprovedTagsManagement() {
                                     />
                                 </TableCell>
                                 <TableCell sx={{ padding: '4px 8px' }}>Tags</TableCell>
-                                <TableCell align="right" sx={{ padding: '4px 8px' }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -307,18 +306,6 @@ export default function ImprovedTagsManagement() {
                                                 />
                                             </TableCell>
                                             <TableCell sx={{ padding: '4px 8px' }}>{tag.label}</TableCell>
-                                            <TableCell align="right" sx={{ padding: '4px 8px' }}>
-                                                <Tooltip title="Edit Tag">
-                                                    <IconButton color="primary">
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Delete Tag">
-                                                    <IconButton color="error" onClick={() => handleDeleteTags(tag.id)}>
-                                                        <DeleteIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </React.Fragment>
