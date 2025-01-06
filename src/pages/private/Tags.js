@@ -14,7 +14,6 @@ import {
     Box,
     Chip,
     TablePagination,
-    IconButton,
     Tooltip
 } from '@mui/material';
 import {
@@ -330,6 +329,7 @@ export default function ImprovedTagsManagement() {
                 open={popups["add_tag"]}
                 onClose={() => closePopup("add_tag")}
                 token={token}
+                categories={categories}
             />
             <CategoriesPopup
                 open={popups["categories"]}
