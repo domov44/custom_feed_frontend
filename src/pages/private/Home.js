@@ -47,6 +47,8 @@ const Feed = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextPageToken, setNextPageToken] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
@@ -83,8 +85,9 @@ const Feed = () => {
     fetchCategories();
   }, []);
 
-  const fetchVideos = async (categoryId = null) => {
-    setLoading(true);
+  const fetchVideos = async (categoryId = null, pageToken = null) => {
+    if (pageToken) setLoadingMore(true);
+    else setLoading(true);
 
     try {
       const token = Cookies.get('token');
@@ -95,8 +98,8 @@ const Feed = () => {
       }
 
       const url = categoryId
-        ? `https://nest-api-sand.vercel.app/feed/${categoryId}`
-        : 'https://nest-api-sand.vercel.app/feed';
+        ? `https://nest-api-sand.vercel.app/feed/${categoryId}?pageToken=${pageToken || ''}`
+        : `https://nest-api-sand.vercel.app/feed?pageToken=${pageToken || ''}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -111,11 +114,13 @@ const Feed = () => {
       }
 
       const data = await response.json();
-      setVideos(data.items);
+      setVideos((prevVideos) => (pageToken ? [...prevVideos, ...data.items] : data.items));
+      setNextPageToken(data.nextPageToken || null);
     } catch (error) {
       console.error('Erreur lors de la récupération des vidéos: ', error);
     } finally {
-      setLoading(false);
+      if (pageToken) setLoadingMore(false);
+      else setLoading(false);
     }
   };
 
@@ -131,6 +136,12 @@ const Feed = () => {
   const clearCategory = () => {
     setSelectedCategory(null);
     fetchVideos();
+  };
+
+  const loadMoreVideos = () => {
+    if (nextPageToken) {
+      fetchVideos(selectedCategory, nextPageToken);
+    }
   };
 
   return (
@@ -173,7 +184,7 @@ const Feed = () => {
                 <StyledCardContent>
                   <Box display="flex" alignItems="center" marginBottom={1} width="100%" gap={1}>
                     <Skeleton variant="circular" width={40} height={33} />
-                    <Box display="flex" flexDirection={"column"} width="100%">
+                    <Box display="flex" flexDirection="column" width="100%">
                       <Skeleton width="60%" height={20} />
                       <Skeleton width="40%" height={15} />
                     </Box>
@@ -184,60 +195,81 @@ const Feed = () => {
           ))}
         </Grid>
       ) : (
-        <Grid container spacing={3}>
-          {videos.map((video) => (
-            <Grid item xs={12} sm={6} md={4} key={video.id.channelId}>
-              <StyledCard>
-                <a
-                  href={video.url}
-                  target="_blank"
-                  style={{ textDecoration: 'none' }}
-                  rel="noreferrer"
-                >
-                  <StyledCardMedia
-                    image={video.thumbnail}
-                    title={video.title}
-                  />
-                </a>
-                <StyledCardContent>
-                  <Box display="flex" alignItems="center" marginBottom={1} width={"100%"} gap={1}>
-                    <Link
-                      href={video.channel.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      underline="none"
-                      gap={1}
-                      style={{ display: 'flex', alignItems: 'center' }}
-                    >
-                      <Avatar
-                        src={video.channel.avatar}
-                        alt={video.channel.title}
-                        sx={{ width: 40, height: 40 }}
-                      />
-                      <Box display="flex" flexDirection={"column"}>
-                        <Typography
-                          variant="h6"
-                          component="a"
-                          href={video.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          color="textPrimary"
-                          noWrap
-                          sx={{ textDecoration: 'none' }}
-                        >
-                          {video.title}
-                        </Typography>
-                        <Typography variant="subtitle2" color="textPrimary" noWrap>
-                          {video.channel.title}
-                        </Typography>
-                      </Box>
-                    </Link>
-                  </Box>
-                </StyledCardContent>
-              </StyledCard>
-            </Grid>
-          ))}
-        </Grid>
+        <>
+          <Grid container spacing={3}>
+            {videos.map((video) => (
+              <Grid item xs={12} sm={6} md={4} key={video.id.videoId || video.id.playlistId}>
+                <StyledCard>
+                  <a
+                    href={video.url}
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                    rel="noreferrer"
+                  >
+                    <StyledCardMedia
+                      image={video.thumbnail}
+                      title={video.title}
+                    />
+                  </a>
+                  <StyledCardContent>
+                    <Box display="flex" alignItems="center" marginBottom={1} width="100%" gap={1}>
+                      <Link
+                        href={video.channel.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        underline="none"
+                        gap={1}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                      >
+                        <Avatar
+                          src={video.channel.avatar}
+                          alt={video.channel.title}
+                          sx={{ width: 40, height: 40 }}
+                        />
+                        <Box display="flex" flexDirection="column">
+                          <Typography
+                            variant="h6"
+                            component="a"
+                            href={video.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            color="textPrimary"
+                            sx={{
+                              textDecoration: 'none',
+                              display: '-webkit-box',
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              WebkitLineClamp: 1,
+                            }}
+                          >
+                            {video.title}
+                          </Typography>
+                          <Typography variant="subtitle2" color="textPrimary" noWrap>
+                            {video.channel.title}
+                          </Typography>
+                        </Box>
+                      </Link>
+                    </Box>
+                  </StyledCardContent>
+                </StyledCard>
+              </Grid>
+            ))}
+          </Grid>
+          {nextPageToken && (
+            <Box display="flex" justifyContent="center" mt={4}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={loadMoreVideos}
+                disabled={loadingMore}
+                startIcon={loadingMore ? <CircularProgress size={20} /> : null}
+              >
+                {loadingMore ? 'Loading...' : 'Load More'}
+              </Button>
+            </Box>
+          )}
+        </>
       )}
     </Container>
   );
