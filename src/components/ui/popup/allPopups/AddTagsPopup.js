@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Popup from '../Popup';
-import { TextField, Button, Box, Chip, IconButton } from '@mui/material';
+import { TextField, Button, Box, Chip, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { AddCircleOutline } from '@mui/icons-material';
 import { notifyError, notifySuccess } from '../../Toastify';
 
-const AddTagsPopup = ({ open, onClose, token }) => {
+const AddTagsPopup = ({ open, onClose, token, categories }) => {
     const [tagInput, setTagInput] = useState('');
     const [tags, setTags] = useState([]);
+    const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [existingTags, setExistingTags] = useState([]);
+
+    useEffect(() => {
+        if (category) {
+            const selectedCategory = categories.find(cat => cat.id === category);
+            if (selectedCategory?.tags) {
+                setExistingTags(selectedCategory.tags);
+            }
+        }
+    }, [category, categories]);
 
     const handleInputChange = (e) => {
         setTagInput(e.target.value);
@@ -38,8 +49,9 @@ const AddTagsPopup = ({ open, onClose, token }) => {
         setError(null);
 
         try {
+            const newTagIds = [];
             for (const tag of tags) {
-                const response = await fetch('https://nest-api-sand.vercel.app/tags/', {
+                const tagResponse = await fetch('https://nest-api-sand.vercel.app/tags/', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -51,14 +63,35 @@ const AddTagsPopup = ({ open, onClose, token }) => {
                     }),
                 });
 
-                if (!response.ok) {
+                if (!tagResponse.ok) {
                     throw new Error('Failed to add tag');
                 }
+                const tagData = await tagResponse.json();
+                newTagIds.push(tagData.id);
             }
-            notifySuccess("Tags added successfuly")
+
+            const existingTagIds = existingTags.map(tag => tag.id);
+            const allTagIds = [...existingTagIds, ...newTagIds];
+
+            const patchResponse = await fetch(`https://nest-api-sand.vercel.app/categories/${category}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tags: allTagIds,
+                }),
+            });
+
+            if (!patchResponse.ok) {
+                throw new Error('Failed to update category with new tags');
+            }
+
+            notifySuccess('Tags added successfully');
             onClose();
         } catch (err) {
-            notifyError("Error during tags submit")
+            notifyError('Error during tags submit');
             setError(err.message);
         } finally {
             setLoading(false);
@@ -68,6 +101,38 @@ const AddTagsPopup = ({ open, onClose, token }) => {
     return (
         <Popup open={open} onClose={onClose} title="Add Tags">
             <form onSubmit={handleSubmitTag}>
+                <FormControl fullWidth margin="normal">
+                    <InputLabel id="category-select-label">Select Category</InputLabel>
+                    <Select
+                        labelId="category-select-label"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        fullWidth
+                        required
+                    >
+                        {categories.map((cat) => (
+                            <MenuItem key={cat.id} value={cat.id}>
+                                {cat.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {category && (
+                    <Box sx={{ mb: 2 }}>
+                        <InputLabel sx={{ mb: 1 }}>Existing Tags</InputLabel>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {existingTags.map((tag) => (
+                                <Chip
+                                    key={tag.id}
+                                    label={tag.label}
+                                    color="default"
+                                />
+                            ))}
+                        </Box>
+                    </Box>
+                )}
+
                 <TextField
                     fullWidth
                     margin="normal"
@@ -76,7 +141,7 @@ const AddTagsPopup = ({ open, onClose, token }) => {
                     placeholder="Type a new tag"
                     value={tagInput}
                     onChange={handleInputChange}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
+                    onKeyDown={(e) => e.key === 'Enter' && e.preventDefault() && handleAddTag()}
                     sx={{ mb: 2 }}
                     error={Boolean(error)}
                     helperText={error}
@@ -98,7 +163,6 @@ const AddTagsPopup = ({ open, onClose, token }) => {
                         />
                     ))}
                 </Box>
-
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                     <Button
