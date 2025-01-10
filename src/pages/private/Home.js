@@ -11,36 +11,16 @@ import {
   Link,
   Button,
   CircularProgress,
+  CardHeader,
+  CardActionArea,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Cookies from 'js-cookie';
 import ClearIcon from '@mui/icons-material/Clear';
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  cursor: 'pointer',
-  borderRadius: '8px',
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-  transition: 'transform 0.3s, box-shadow 0.3s',
-  '&:hover': {
-    transform: 'scale(1.03)',
-    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-  },
-}));
-
-const StyledCardMedia = styled(CardMedia)({
-  height: '180px',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  borderTopLeftRadius: '8px',
-  borderTopRightRadius: '8px',
-});
-
-const StyledCardContent = styled(CardContent)({
-  padding: '16px',
-});
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const Feed = () => {
   const [videos, setVideos] = useState([]);
@@ -50,6 +30,15 @@ const Feed = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -179,18 +168,20 @@ const Feed = () => {
         <Grid container spacing={3}>
           {Array.from({ length: 9 }).map((_, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
-              <StyledCard>
-                <Skeleton variant="rectangular" width="100%" height={180} />
-                <StyledCardContent>
-                  <Box display="flex" alignItems="center" marginBottom={1} width="100%" gap={1}>
-                    <Skeleton variant="circular" width={40} height={33} />
-                    <Box display="flex" flexDirection="column" width="100%">
-                      <Skeleton width="60%" height={20} />
-                      <Skeleton width="40%" height={15} />
-                    </Box>
+              <Card sx={{ maxWidth: 345, borderRadius: 2, boxShadow: 3 }}>
+                <Box display="flex" alignItems="center" p={2} gap={2}>
+                  <Skeleton variant="circular" width={40} height={40} />
+                  <Box flexGrow={1}>
+                    <Skeleton width="60%" height={20} />
+                    <Skeleton width="40%" height={15} />
                   </Box>
-                </StyledCardContent>
-              </StyledCard>
+                  <Skeleton variant="circular" width={32} height={32} />
+                </Box>
+                <Skeleton variant="rectangular" width="100%" height={194} />
+                <Box p={2}>
+                  <Skeleton width="80%" height={20} />
+                </Box>
+              </Card>
             </Grid>
           ))}
         </Grid>
@@ -199,60 +190,65 @@ const Feed = () => {
           <Grid container spacing={3}>
             {videos.map((video) => (
               <Grid item xs={12} sm={6} md={4} key={video.id.videoId || video.id.playlistId}>
-                <StyledCard>
-                  <a
-                    href={video.url}
-                    target="_blank"
-                    style={{ textDecoration: 'none' }}
-                    rel="noreferrer"
-                  >
-                    <StyledCardMedia
-                      image={video.thumbnail}
-                      title={video.title}
-                    />
-                  </a>
-                  <StyledCardContent>
-                    <Box display="flex" alignItems="center" marginBottom={1} width="100%" gap={1}>
+                <Card sx={{ maxWidth: 345 }}>
+                  <CardHeader
+                    avatar={
+                      <Tooltip title={video.channel.title}>
+                        <IconButton sx={{ p: 0 }} component={Link} href={video.channel.url} target='_blank'>
+                          <Avatar src={video.channel.avatar} alt={video.channel.title} />
+                        </IconButton>
+                      </Tooltip>
+                    }
+                    action={
+                      <IconButton aria-label="settings">
+                        <MoreVertIcon />
+                      </IconButton>
+                    }
+                    title={
                       <Link
                         href={video.channel.url}
                         target="_blank"
                         rel="noreferrer"
                         underline="none"
-                        gap={1}
-                        style={{ display: 'flex', alignItems: 'center' }}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          color: 'inherit',
+                        }}
                       >
-                        <Avatar
-                          src={video.channel.avatar}
-                          alt={video.channel.title}
-                          sx={{ width: 40, height: 40 }}
-                        />
-                        <Box display="flex" flexDirection="column">
-                          <Typography
-                            variant="h6"
-                            component="a"
-                            href={video.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            color="textPrimary"
-                            sx={{
-                              textDecoration: 'none',
-                              display: '-webkit-box',
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              WebkitLineClamp: 1,
-                            }}
-                          >
-                            {video.title}
-                          </Typography>
-                          <Typography variant="subtitle2" color="textPrimary" noWrap>
-                            {video.channel.title}
-                          </Typography>
-                        </Box>
+                        {video.channel.title}
                       </Link>
-                    </Box>
-                  </StyledCardContent>
-                </StyledCard>
+                    }
+                    subheader={formatDate(video.publishedAt)}
+                  />
+                  <CardActionArea href={video.url} target='_blank'>
+                    <CardMedia
+                      component="img"
+                      height="194"
+                      image={video.thumbnail}
+                      alt={video.title}
+                      title={video.title}
+                    />
+                    <CardContent>
+                      <Typography
+                        variant="h6"
+                        rel="noreferrer"
+                        color="textPrimary"
+                        sx={{
+                          textDecoration: 'none',
+                          display: '-webkit-box',
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          WebkitLineClamp: 1,
+                        }}
+                      >
+                        {video.title}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
               </Grid>
             ))}
           </Grid>
