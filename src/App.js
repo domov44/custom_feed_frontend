@@ -7,21 +7,21 @@ import Profil from './pages/private/Profil';
 import DefaultLayout from './components/layouts/DefaultLayout';
 import Tags from './pages/private/Tags';
 import Signup from './pages/public/Signup';
+import { ROUTES } from './routes';
 
 function App() {
   return (
     <Routes>
-      {/*Début des routes publiques à partir d'ici */}
-      <Route path="/signin" element={<Login />} /> {/* Page login */}
-      <Route path="/signup" element={<Signup />} /> {/* Page login */}
-      {/* Fin des routes publiques */}
+      {/*  publics routes */}
+      <Route path={ROUTES.SIGNIN} element={<Login />} />
+      <Route path={ROUTES.SIGNUP} element={<Signup />} />
 
-      {/*Début des routes protégées à partir d'ici */}
+      {/* private route */}
       <Route element={<DefaultLayout />}>
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Home />} /> {/*Page d'accueil */}
-          <Route path="/profil" element={<Profil />} /> {/*Page d'accueil */}
-          <Route path="/tags" element={<Tags />} /> {/*Page des tags */}
+          <Route path={ROUTES.HOME} element={<Home />} />
+          <Route path={ROUTES.PROFILE} element={<Profil />} />
+          <Route path={ROUTES.TAG} element={<Tags />} />
         </Route>
       </Route>
     </Routes>

@@ -14,6 +14,7 @@ import {
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Link as RouterLink } from 'react-router-dom';
+import { ROUTES } from '../../routes';
 
 function Signup() {
 
@@ -141,7 +142,7 @@ function Signup() {
               {loading ? 'Wait..' : 'Sign up'}
             </Button>
             <Grid container justifyContent="flex-end">
-              <Link component={RouterLink} to="/signin" variant="body2">
+              <Link component={RouterLink} to={ROUTES.SIGNIN} variant="body2">
                 Already have an account? Signin.
               </Link>
             </Grid>

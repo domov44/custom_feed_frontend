@@ -8,16 +8,8 @@ export default function Profil() {
     const { currentUser } = useAuth();
 
     return (
-            <Container component="main" maxWidth="xs">
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                <Typography variant="h5">{currentUser.username}</Typography>
-                
-            </Container>
+        <Container component="main" maxWidth="xs">
+            <Typography variant="h5">Logged in as {currentUser.username}</Typography>
+        </Container>
     );
 }
