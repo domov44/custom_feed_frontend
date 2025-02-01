@@ -22,7 +22,7 @@ import Logout from '../../utils/Logout';
 import { Link, Outlet } from 'react-router-dom';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import StyleIcon from '@mui/icons-material/Style';
-import SettingsIcon from '@mui/icons-material/Settings';
+import { ROUTES } from '../../routes';
 
 const drawerWidth = 300;
 
@@ -109,8 +109,8 @@ export default function DefaultLayout({ children }) {
               <MenuIcon />
             </IconButton>
             <Box sx={{ flexGrow: 1 }} />
-            <Tooltip title="Votre profil">
-              <IconButton sx={{ p: 0 }} component={Link} to="/profil">
+            <Tooltip title="Your profile">
+              <IconButton sx={{ p: 0 }} component={Link} to={ROUTES.PROFILE}>
                 <Avatar />
               </IconButton>
             </Tooltip>
@@ -138,7 +138,7 @@ export default function DefaultLayout({ children }) {
         <Divider />
         <List>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/">
+            <ListItemButton component={Link} to={ROUTES.HOME}>
               <ListItemIcon>
                 <DynamicFeedIcon />
               </ListItemIcon>
@@ -146,19 +146,11 @@ export default function DefaultLayout({ children }) {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/tags">
+            <ListItemButton component={Link} to={ROUTES.TAG}>
               <ListItemIcon>
                 <StyleIcon />
               </ListItemIcon>
               <ListItemText>Tags</ListItemText>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to="/settings">
-              <ListItemIcon>
-                <SettingsIcon />
-              </ListItemIcon>
-              <ListItemText>Settings</ListItemText>
             </ListItemButton>
           </ListItem>
         </List>
