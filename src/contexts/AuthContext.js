@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { notifyError, notifySuccess } from "../components/ui/Toastify";
 import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../routes";
 
 const AuthContext = createContext();
 
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }) => {
             });
 
             await checkAuth();
-            navigate("/");
+            navigate(ROUTES.HOME);
             notifySuccess("You are logged in");
         } catch (error) {
             notifyError("Login failed. Please try again.");
@@ -99,7 +100,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error(`Register failed. Status: ${response.status}`);
             }
 
-            navigate("/signin");
+            navigate(ROUTES.SIGNIN);
             notifySuccess("Welcome, you can signin");
         } catch (error) {
             notifyError("Register failed. Please try again.");
@@ -114,7 +115,7 @@ export const AuthProvider = ({ children }) => {
             if (token) {
                 Cookies.remove("token");
                 setCurrentUser(null);
-                navigate("/signin");
+                navigate(ROUTES.SIGNIN);
                 notifySuccess("You have been logged out.");
             }
         } catch (error) {

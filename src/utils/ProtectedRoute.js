@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ROUTES } from '../routes';
 
 function ProtectedRoutes({ children }) {
     const { currentUser, loading } = useAuth();
@@ -9,10 +10,8 @@ function ProtectedRoutes({ children }) {
         return <div>Loading...</div>;
     }
 
-    console.log(currentUser)
-
     if (!currentUser) {
-        return <Navigate to="/signin" replace />;
+        return <Navigate to={ROUTES.SIGNIN} replace />;
     }
 
     return <Outlet/>;
